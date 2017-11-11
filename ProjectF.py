@@ -26,7 +26,7 @@ def MLAData(Full_Data,BinInfos,Flux):
                 BinObj = CurrentBin[BinObj_No]
                 ##checking if the two match 
                 if BinObj['FIBERID'] == CurrentSup.FiberID:
-                    y=y+1
+                    y=y+1 
                     if no_match:
                         if CurrentSup.Class_p == 0:
                             a=0
@@ -37,8 +37,8 @@ def MLAData(Full_Data,BinInfos,Flux):
                             x_flux =(CurrentFlux[BinObj_No])
                             x_flux=x_flux[:4600]
                             X.append(x_flux)
-                            All_redshifts.append(CurrentSup_test.z)
-                            All_Mag.append(CurrentSup_test.Mag)
+                            All_redshifts.append(CurrentSup.z)
+                            All_Mag.append(CurrentSup.Mag)
                 BinObj_No=BinObj_No+1  
             Sup_obj=Sup_obj+1
         plate_no = plate_no+1
@@ -49,61 +49,83 @@ def MLAData(Full_Data,BinInfos,Flux):
 def classification(objectclass, Trainingclass, prediction):
     ## Star, Quasar, Galaxy, BAL
     classi = []
+    ##Location of object that is predicted to be a given classification
+    loc = [0,0,0,0]
     star=0;
     qso=0;
     gal=0;
     bal=0;
+    starloc=[];
+    qsoloc=[];
+    galloc=[];
+    balloc=[];
     i=0
     while i< len(Trainingclass):
         currentobject = Trainingclass[i]
         if objectclass==1:
             if currentobject==1: 
                 star=star+1
+                starloc.append(i)
             elif currentobject==3: 
                 qso=qso+1
+                qsoloc.append(i)
             elif currentobject==4: 
                 gal=gal+1
+                galloc.append(i)
             elif currentobject==30: 
                 bal=bal+1
+                balloc.append(i)
                 
 
         elif objectclass==3:
             if currentobject==1: 
                 star=star+1
+                starloc.append(i)
             elif currentobject==3: 
                 qso=qso+1
+                qsoloc.append(i)
             elif currentobject==4: 
                 gal=gal+1
+                galloc.append(i)
             elif currentobject==30: 
                 bal=bal+1
+                balloc.append(i)
                 
         elif objectclass==4:
             if currentobject==1: 
                 star=star+1
+                starloc.append(i)
             elif currentobject==3: 
                 qso=qso+1
+                qsoloc.append(i)
             elif currentobject==4: 
                 gal=gal+1
+                galloc.append(i)
             elif currentobject==30: 
                 bal=bal+1
+                balloc.append(i)
                 
 
         elif objectclass==30:
             if currentobject==1: 
                 star=star+1
+                starloc.append(i)
             elif currentobject==3: 
                 qso=qso+1
+                qsoloc.append(i)
             elif currentobject==4: 
                 gal=gal+1
+                galloc.append(i)
             elif currentobject==30: 
                 bal=bal+1
+                balloc.append(i)
         
         i=i+1
     
-    classi.append(star)
-    classi.append(qso)
-    classi.append(gal)
-    classi.append(bal)
+    classi.append(star/(star+qso+gal+bal))
+    classi.append(qso/(star+qso+gal+bal))
+    classi.append(gal/(star+qso+gal+bal))
+    classi.append(bal/(star+qso+gal+bal))
     return classi
         
                 
