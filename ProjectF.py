@@ -62,61 +62,18 @@ def classification(objectclass, Trainingclass, prediction):
     i=0
     while i< len(Trainingclass):
         currentobject = Trainingclass[i]
-        if objectclass==1:
-            if currentobject==1: 
+        currentpred = prediction[i]
+        if objectclass==currentobject:
+            if currentpred==1: 
                 star=star+1
                 starloc.append(i)
-            elif currentobject==3: 
+            elif currentpred==3: 
                 qso=qso+1
                 qsoloc.append(i)
-            elif currentobject==4: 
+            elif currentpred==4: 
                 gal=gal+1
                 galloc.append(i)
-            elif currentobject==30: 
-                bal=bal+1
-                balloc.append(i)
-                
-
-        elif objectclass==3:
-            if currentobject==1: 
-                star=star+1
-                starloc.append(i)
-            elif currentobject==3: 
-                qso=qso+1
-                qsoloc.append(i)
-            elif currentobject==4: 
-                gal=gal+1
-                galloc.append(i)
-            elif currentobject==30: 
-                bal=bal+1
-                balloc.append(i)
-                
-        elif objectclass==4:
-            if currentobject==1: 
-                star=star+1
-                starloc.append(i)
-            elif currentobject==3: 
-                qso=qso+1
-                qsoloc.append(i)
-            elif currentobject==4: 
-                gal=gal+1
-                galloc.append(i)
-            elif currentobject==30: 
-                bal=bal+1
-                balloc.append(i)
-                
-
-        elif objectclass==30:
-            if currentobject==1: 
-                star=star+1
-                starloc.append(i)
-            elif currentobject==3: 
-                qso=qso+1
-                qsoloc.append(i)
-            elif currentobject==4: 
-                gal=gal+1
-                galloc.append(i)
-            elif currentobject==30: 
+            elif currentpred==30: 
                 bal=bal+1
                 balloc.append(i)
         
