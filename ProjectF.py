@@ -117,8 +117,24 @@ def classification(objectclass, Trainingclass, prediction):
     classi.append(gal/(star+qso+gal+bal))
     classi.append(bal/(star+qso+gal+bal))
     return classi
-        
-                
-    
-    
 
+
+def storing(PLATEIDs,supers):
+    CurrentPlate = 0
+    Full_Data=[]
+    Plate_Count =0
+    while Plate_Count < len(PLATEIDs):
+        Current_Plate = PLATEIDs[Plate_Count]
+        CurrentObject = 0
+        platename_data = []
+        while CurrentObject < len(supers):
+            Current = supers[CurrentObject]
+            if Current['PLATE'] == Current_Plate:
+                Object_ = Object(Current['SDSS_NAME'], Current['RA'], Current['Dec'], 
+                         Current['Z_VI'], Current['CLASS_PERSON'],Current['PLATE'] ,
+                         Current['MJD'], Current['FIBERID'],Current['PSFMAG'])
+                platename_data.append(Object_)
+            CurrentObject=CurrentObject+1    
+        Plate_Count = Plate_Count + 1
+        Full_Data.append(platename_data)
+    return Full_Data
