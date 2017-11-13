@@ -33,12 +33,13 @@ class Object:
 
 
 
-def MLAData(Full_Data,BinInfos,Flux):
+def MLAData(Full_Data,BinInfos,Flux,log_wavs):
     
     Y = []
     X = []
     All_redshifts=[]
     All_Mag=[]
+    wav_logs=[]
     plate_no = 0
     y=0
     while plate_no < len(Full_Data):
@@ -57,6 +58,7 @@ def MLAData(Full_Data,BinInfos,Flux):
             BinObj_No = 0
             while BinObj_No<len(CurrentBin):
                 BinObj = CurrentBin[BinObj_No]
+                wav= log_wavs[BinObj_No]
                 ##checking if the two match 
                 if BinObj['FIBERID'] == CurrentSup.FiberID:
                     y=y+1 
@@ -74,6 +76,7 @@ def MLAData(Full_Data,BinInfos,Flux):
                                     X.append(x_flux)
                                     All_redshifts.append(CurrentSup.z)
                                     All_Mag.append(CurrentSup.Mag)
+                                    wav_logs.append(wav)
                                 else:
                                     Y.append(30)
                                     x_flux =(CurrentFlux[BinObj_No])
@@ -81,6 +84,7 @@ def MLAData(Full_Data,BinInfos,Flux):
                                     X.append(x_flux)
                                     All_redshifts.append(CurrentSup.z)
                                     All_Mag.append(CurrentSup.Mag)
+                                    wav_logs.append(wav)
                                     
                             else: 
                                 Y.append(CurrentSup.Class_p)
@@ -89,11 +93,12 @@ def MLAData(Full_Data,BinInfos,Flux):
                                 X.append(x_flux)
                                 All_redshifts.append(CurrentSup.z)
                                 All_Mag.append(CurrentSup.Mag)
+                                wav_logs.append(wav)
                 BinObj_No=BinObj_No+1  
             Sup_obj=Sup_obj+1
         plate_no = plate_no+1
 
-    return X,Y,All_redshifts,All_Mag
+    return X,Y,All_redshifts,All_Mag,wav_logs
 
 
 def classification(objectclass, Trainingclass, prediction):
