@@ -47,6 +47,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
         CurrentSup_data = Full_Data[plate_no]
         CurrentBin = BinInfos[plate_no]
         CurrentFlux = Flux[plate_no]
+        wav= log_wavs[plate_no]
         #first object is zeroth element
         Sup_obj =0 
         while Sup_obj < len(CurrentSup_data):
@@ -58,7 +59,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
             BinObj_No = 0
             while BinObj_No<len(CurrentBin):
                 BinObj = CurrentBin[BinObj_No]
-                wav= log_wavs[BinObj_No]
+                
                 ##checking if the two match 
                 if BinObj['FIBERID'] == CurrentSup.FiberID:
                     y=y+1 
