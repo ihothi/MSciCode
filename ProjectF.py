@@ -66,12 +66,29 @@ def MLAData(Full_Data,BinInfos,Flux):
                         else:
     
                             no_match = False
-                            Y.append(CurrentSup.Class_p)
-                            x_flux =(CurrentFlux[BinObj_No])
-                            x_flux=x_flux[:4600]
-                            X.append(x_flux)
-                            All_redshifts.append(CurrentSup.z)
-                            All_Mag.append(CurrentSup.Mag)
+                            if CurrentSup.Class_p == 3 or 30:
+                                if CurrentSup.z < 2.1:
+                                    Y.append(3)
+                                    x_flux =(CurrentFlux[BinObj_No])
+                                    x_flux=x_flux[:4600]
+                                    X.append(x_flux)
+                                    All_redshifts.append(CurrentSup.z)
+                                    All_Mag.append(CurrentSup.Mag)
+                                else:
+                                    Y.append(30)
+                                    x_flux =(CurrentFlux[BinObj_No])
+                                    x_flux=x_flux[:4600]
+                                    X.append(x_flux)
+                                    All_redshifts.append(CurrentSup.z)
+                                    All_Mag.append(CurrentSup.Mag)
+                                    
+                            else: 
+                                Y.append(CurrentSup.Class_p)
+                                x_flux =(CurrentFlux[BinObj_No])
+                                x_flux=x_flux[:4600]
+                                X.append(x_flux)
+                                All_redshifts.append(CurrentSup.z)
+                                All_Mag.append(CurrentSup.Mag)
                 BinObj_No=BinObj_No+1  
             Sup_obj=Sup_obj+1
         plate_no = plate_no+1
@@ -85,8 +102,10 @@ def classification(objectclass, Trainingclass, prediction):
     ##Location of object that is predicted to be a given classification
     loc = [0,0,0,0]
     star=0;
+    #quasar w/ redshift <2.1
     qso=0;
     gal=0;
+    #quasar w/ redshift >2.1
     bal=0;
     starloc=[];
     qsoloc=[];
@@ -116,7 +135,7 @@ def classification(objectclass, Trainingclass, prediction):
     classi.append(qso/(star+qso+gal+bal))
     classi.append(gal/(star+qso+gal+bal))
     classi.append(bal/(star+qso+gal+bal))
-    return classi
+    return classi,starloc,qsoloc,galloc,balloc
 
 
 def storing(PLATEIDs,supers):
