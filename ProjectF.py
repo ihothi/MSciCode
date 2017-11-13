@@ -66,7 +66,7 @@ def MLAData(Full_Data,BinInfos,Flux):
                         else:
     
                             no_match = False
-                            if CurrentSup.Class_p == 3 or 30:
+                            if CurrentSup.Class_p == 3 or CurrentSup.Class_p==30:
                                 if CurrentSup.z < 2.1:
                                     Y.append(3)
                                     x_flux =(CurrentFlux[BinObj_No])
