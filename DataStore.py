@@ -14,13 +14,14 @@ import random
 PlateDir = os.path.normpath("D:\Data\Plate_Name_Reduced.txt")
 with open(PlateDir) as f:
     Spectra_Files = f.read().splitlines()
-    
+print('Yes')  
 PLATEIDs = []
 BinInfos = []
 Flux = []
 MJDs = []
 log_wavst=[]
 TrainingDir = os.path.normpath("D:\Data")
+slash =  os.path.normpath("\\")
 TrainingFolder =  os.path.normpath("\Training")
 slash =  os.path.normpath("\\")
 for spectrum in Spectra_Files:
@@ -35,6 +36,23 @@ for spectrum in Spectra_Files:
     Flux.append(Flux_)
     
 list = fits.open(TrainingDir+slash+'Superset_DR12Q.fits',memmap=True)#opening file
-
+print(len(log_wavst))
 supers=list[1].data # storing  BINTABLE extension data
-    
+
+Full_Data = storing(PLATEIDs,supers)
+
+
+X,Y,Train_z, Train_mag,wavst = MLADataBin(Full_Data,BinInfos,Flux, log_wavst,20)
+
+i=0
+while i <len(PLATEIDs):
+    C_Plate = PLATEIDs[i]
+    a1 = X[i] 
+    a2 = Y[i]
+
+    col1 = fits.Column(name='Bin_Flux', format='E', array=a1)
+    col2 = fits.Column(name='Class', format='E', array=a2)
+    cols = fits.ColDefs([col1, col2])
+    tbhdu = fits.BinTableHDU.from_columns(cols)
+    tbhdu.writeto(TrainingDir+slash+"rebinned"+C_Plate+'.fits')
+    i=i+1

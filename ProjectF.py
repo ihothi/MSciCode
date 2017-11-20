@@ -166,19 +166,22 @@ def storing(PLATEIDs,supers):
 
 def MLADataBin(Full_Data,BinInfos,Flux,log_wavsm, Bin_size):
     
-    Y = []
-    X = []
+    Plate_Y = []
+    Plate_X = []
     All_redshifts=[]
     All_Mag=[]
     wav_logs=[]
     plate_no = 0
     y=0
+    
     while plate_no < len(Full_Data):
+        Y = []
+        X = []
         #loading matched objects with sup, plate data
         CurrentSup_data = Full_Data[plate_no]
         CurrentBin = BinInfos[plate_no]
         CurrentFlux = Flux[plate_no]
-        wav= log_wavs[plate_no]
+        wav= log_wavsm[plate_no]
         #first object is zeroth element
         Sup_obj =0 
         while Sup_obj < len(CurrentSup_data):
@@ -245,5 +248,7 @@ def MLADataBin(Full_Data,BinInfos,Flux,log_wavsm, Bin_size):
                 BinObj_No=BinObj_No+Bin_size 
             Sup_obj=Sup_obj+1
         plate_no = plate_no+1
+        Plate_X.append(X)
+        Plate_Y.append(Y)
 
-    return X,Y,All_redshifts,All_Mag,wav_logs
+    return Plate_X,Plate_Y,All_redshifts,All_Mag,wav_logs
