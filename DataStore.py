@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 import os
-from ProjectF import MLAData,classification, Object,storing
+from ProjectF import MLADataTest,classification, Object,storing
 import random
 
 ## Loading in data
@@ -42,7 +42,7 @@ supers=list[1].data # storing  BINTABLE extension data
 Full_Data = storing(PLATEIDs,supers)
 
 
-X,Y,Train_z, Train_mag,wavst = MLADataBin(Full_Data,BinInfos,Flux, log_wavst,20)
+X,Y,Train_z, Train_mag,wavst = MLADataTest(Full_Data,BinInfos,Flux, log_wavst)
 
 i=0
 while i <len(PLATEIDs):
