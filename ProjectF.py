@@ -21,7 +21,13 @@ class Object:
 
 
 
-
+class FluxStore:
+    
+    def __init__():[]
+   
+    def __init__(self,PF):
+        #leaving out redshift for now
+        self.PlateFlux = PF
 
 
 
@@ -35,8 +41,9 @@ class Object:
 
 def MLAData(Full_Data,BinInfos,Flux,log_wavs):
     
-    Y = []
-    X = []
+    
+    All_Y=[]
+    All_X = []
     All_redshifts=[]
     All_Mag=[]
     wav_logs=[]
@@ -48,6 +55,9 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
         CurrentBin = BinInfos[plate_no]
         CurrentFlux = Flux[plate_no]
         wav= log_wavs[plate_no]
+        Plate_Y = []
+        Plate_X = []
+        
         #first object is zeroth element
         Sup_obj =0 
         while Sup_obj < len(CurrentSup_data):
@@ -58,6 +68,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
             #going through each object in the bin
             BinObj_No = 0
             while BinObj_No<len(CurrentBin):
+                X=[]
                 BinObj = CurrentBin[BinObj_No]
                 
                 ##checking if the two match 
@@ -71,35 +82,37 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
                             no_match = False
                             if CurrentSup.Class_p == 3 or CurrentSup.Class_p==30:
                                 if CurrentSup.z < 2.1:
-                                    Y.append(3)
+                                    Plate_Y.append(3)
                                     x_flux =(CurrentFlux[BinObj_No])
                                     x_flux=x_flux[:4600]
-                                    X.append(x_flux)
+                                    Plate_X.append(x_flux)
                                     All_redshifts.append(CurrentSup.z)
                                     All_Mag.append(CurrentSup.Mag)
                                     wav_logs.append(wav)
                                 else:
-                                    Y.append(30)
+                                    Plate_Y.append(30)
                                     x_flux =(CurrentFlux[BinObj_No])
                                     x_flux=x_flux[:4600]
-                                    X.append(x_flux)
+                                    Plate_X.append(x_flux)
                                     All_redshifts.append(CurrentSup.z)
                                     All_Mag.append(CurrentSup.Mag)
                                     wav_logs.append(wav)
                                     
                             else: 
-                                Y.append(CurrentSup.Class_p)
+                                Plate_Y.append(CurrentSup.Class_p)
                                 x_flux =(CurrentFlux[BinObj_No])
                                 x_flux=x_flux[:4600]
-                                X.append(x_flux)
+                                Plate_X.append(x_flux)
                                 All_redshifts.append(CurrentSup.z)
                                 All_Mag.append(CurrentSup.Mag)
                                 wav_logs.append(wav)
                 BinObj_No=BinObj_No+1  
             Sup_obj=Sup_obj+1
+        All_Y.append(Plate_Y)
+        All_X.append(Plate_X)
         plate_no = plate_no+1
 
-    return X,Y,All_redshifts,All_Mag,wav_logs
+    return All_X,All_Y,All_redshifts,All_Mag,wav_logs
 
 
 def classification(objectclass, Trainingclass, prediction):
@@ -164,30 +177,27 @@ def storing(PLATEIDs,supers):
         Full_Data.append(platename_data)
     return Full_Data
 
-def MLADataBin(Full_Data,BinInfos,Flux,log_wavsm, Bin_size,ORMASK, INVAR):
+def MLADataBin(Full_Data,BinInfos,Flux,log_wavs, ANDMASK, INV, BIN_Size):
     
-    Plate_Y = []
-    Plate_X = []
+    
+    All_Y=[]
+    All_X = []
     All_redshifts=[]
     All_Mag=[]
-    All_Wavlogs=[]
+    wav_logs=[]
     plate_no = 0
-    
+    y=0
     while plate_no < len(Full_Data):
-        Y = []
-        X = []
-        wav_logs=[]
-        redshifts=[]
-        Mag=[]
         #loading matched objects with sup, plate data
         CurrentSup_data = Full_Data[plate_no]
         CurrentBin = BinInfos[plate_no]
         CurrentFlux = Flux[plate_no]
-        CurrentMask =ORMASK[plate_no]
-        CurrentIn = INVAR[plate_no]
-        wav= log_wavsm[plate_no]
-        ObjectInvar=[]
-        NewInVar = []
+        CurrentAndM= ANDMASK[plate_no]
+        CurrentInv = INV[plate_no]
+        wav= log_wavs[plate_no]
+        Plate_Y = []
+        Plate_X = []
+        
         #first object is zeroth element
         Sup_obj =0 
         while Sup_obj < len(CurrentSup_data):
@@ -198,13 +208,14 @@ def MLADataBin(Full_Data,BinInfos,Flux,log_wavsm, Bin_size,ORMASK, INVAR):
             #going through each object in the bin
             BinObj_No = 0
             while BinObj_No<len(CurrentBin):
+                X=[]
                 BinObj = CurrentBin[BinObj_No]
-                ObjFlux = CurrentFlux[BinObj_No]
-                ObjIn=CurrentIn[BinObj_No]
-                W=0
+                ObjAndM= CurrentAndM[plate_no]
+                ObjInv = CurrentInv[plate_no]
                 
                 ##checking if the two match 
                 if BinObj['FIBERID'] == CurrentSup.FiberID:
+                    y=y+1 
                     if no_match:
                         if CurrentSup.Class_p == 0:
                             a=0
@@ -212,89 +223,72 @@ def MLADataBin(Full_Data,BinInfos,Flux,log_wavsm, Bin_size,ORMASK, INVAR):
     
                             no_match = False
                             if CurrentSup.Class_p == 3 or CurrentSup.Class_p==30:
-                                bin_n=0
-                                x_flux=0
-                                ObjFlux[:4600]
                                 if CurrentSup.z < 2.1:
-                                    Y.append(3)
+                                    Plate_Y.append(3)
+                                    x_flux =(CurrentFlux[BinObj_No])
+                                    x_flux=x_flux[:4600]
+                                    All_redshifts.append(CurrentSup.z)
+                                    All_Mag.append(CurrentSup.Mag)
+                                    wav_logs.append(wav)
                                     pixno=0
-                                    while pixno < len(ObjFlux):
+                                    while pixno<len(x_flux):
+                                        bin_count =0
+                                        x_= 0
+                                        w=0
+                                        while bin_count<BIN_Size:
+                                            x_ = x_+x_flux[pixno+bin_count]*(ObjInv[pixno+bin_count])
+                                            w=w+ObjInv[pixno+bin_count]
+                                        x_=x_/w
+                                        X.append(x_)
+                                    Plate_X.append(X)
                                         
-                                        while bin_n<Bin_size:
-                                            if (pixno+bin_n)<len(ObjFlux):
-                                                
-                                                x_flux1 =(ObjFlux[pixno+bin_n])
-                                                CurrentW=ObjIn[pixno+bin_n]
-                                                W=W+CurrentW
-                                                x_flux=x_flux +(x_flux1*CurrentW)
-                                                X.append(x_flux)
-                                                redshifts.append(CurrentSup.z)
-                                                Mag.append(CurrentSup.Mag)
-                                                wav_logs.append(wav)
-                                                bin_n=bin_n+1
-                                        if W==0:
-                                            X.append(0)
-                                        else:
-                                            X.append(x_flux/W)
-                                        pixno=pixno+bin_n
-                                else:
-                                    Y.append(30)
-                                    pixno=0
-                                    ObjFlux[:4600]
-                                    while pixno < len(CurrentFlux):
                                         
-                                        while bin_n<Bin_size:
-                                            if (pixno+bin_n)<len(ObjFlux):
-                                                
-                                                x_flux1 =(ObjFlux[pixno+bin_n])
-                                                CurrentW=ObjIn[pixno+bin_n]
-                                                W=W+CurrentW
-                                                x_flux=x_flux +(x_flux1*CurrentW)
-                                                X.append(x_flux)
-                                                redshifts.append(CurrentSup.z)
-                                                Mag.append(CurrentSup.Mag)
-                                                wav_logs.append(wav)
-                                                bin_n=bin_n+1
-                                        if W==0:
-                                            X.append(0)
-                                        else:
-                                            X.append(x_flux/W)
-                                        pixno=pixno+bin_n
-                                    
-                            else:
-                                bin_n=0
-                                x_flux=0
-                                Y.append(CurrentSup.Class_p)
-                                pixno=0
-                                ObjFlux[:4600]
-                                while pixno < len(CurrentFlux):
-                                    while bin_n<Bin_size:
-                                        if (pixno+bin_n)<len(ObjFlux):
                                             
-                                            x_flux1 =(ObjFlux[pixno+bin_n])
-                                            CurrentW=ObjIn[pixno+bin_n]
-                                            W=W+CurrentW
-                                            x_flux=x_flux +(x_flux1*CurrentW)
-                                            X.append(x_flux)
-                                            redshifts.append(CurrentSup.z)
-                                            Mag.append(CurrentSup.Mag)
-                                            wav_logs.append(wav)
-                                            bin_n=bin_n+1
-                                    if W==0:
-                                        X.append(0)
-                                    else:
-                                        X.append(x_flux/W)
-                                    pixno=pixno+bin_n
-                BinObj_No=BinObj_No+1
+                                            
+                                            
+                                else:
+                                    Plate_Y.append(30)
+                                    x_flux =(CurrentFlux[BinObj_No])
+                                    x_flux=x_flux[:4600]
+                                    All_redshifts.append(CurrentSup.z)
+                                    All_Mag.append(CurrentSup.Mag)
+                                    wav_logs.append(wav)
+                                    while pixno<len(x_flux):
+                                        bin_count =0
+                                        x_= 0
+                                        w=0
+                                        while bin_count<BIN_Size:
+                                            x_ = x_+x_flux[pixno+bin_count]*(ObjInv[pixno+bin_count])
+                                            w=w+ObjInv[pixno+bin_count]
+                                        x_=x_/w
+                                        X.append(x_)
+                                    Plate_X.append(X)
+                                    
+                            else: 
+                                Plate_Y.append(CurrentSup.Class_p)
+                                x_flux =(CurrentFlux[BinObj_No])
+                                x_flux=x_flux[:4600]
+                                All_redshifts.append(CurrentSup.z)
+                                All_Mag.append(CurrentSup.Mag)
+                                wav_logs.append(wav)
+                                while pixno<len(x_flux):
+                                    bin_count =0
+                                    x_= 0
+                                    w=0
+                                    while bin_count<BIN_Size:
+                                        x_ = x_+x_flux[pixno+bin_count]*(ObjInv[pixno+bin_count])
+                                        w=w+ObjInv[pixno+bin_count]
+                                    x_=x_/w
+                                    X.append(x_)
+                                Plate_X.append(X)
+                BinObj_No=BinObj_No+1  
+                Plate_X
             Sup_obj=Sup_obj+1
+        All_Y.append(Plate_Y)
+        All_X.append(Plate_X)
         plate_no = plate_no+1
-        Plate_X.append(X)
-        Plate_Y.append(Y)
-        All_Mag.append(Mag)
-        All_redshifts.append(redshifts)
-        All_Wavlogs.append(wav_logs)
 
-    return Plate_X,Plate_Y,All_redshifts,All_Mag,wav_logs
+    return All_X,All_Y,All_redshifts,All_Mag,wav_logs
 
 
 def MLADataTest(Full_Data,BinInfos,Flux,log_wavs):

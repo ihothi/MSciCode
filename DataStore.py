@@ -20,6 +20,10 @@ BinInfos = []
 Flux = []
 MJDs = []
 log_wavst=[]
+ORMASK=[]
+ANDMASK=[]
+INVAR=[]
+
 TrainingDir = os.path.normpath("D:\Data")
 slash =  os.path.normpath("\\")
 TrainingFolder =  os.path.normpath("\Training")
@@ -30,6 +34,9 @@ for spectrum in Spectra_Files:
     Flux_ = plate_[0].data
     primhdu_ = plate_[0]
     PLATEIDs.append(primhdu_.header['PLATEID'])
+    ORMASK.append( plate_[3].data)
+    ANDMASK.append( plate_[2].data)
+    INVAR.append( plate_[1].data)
     log_wavst.append(primhdu_.header['COEFF0'])
     MJDs.append(primhdu_.header['MJD'])
     BinInfos.append(Bin_info_)
@@ -38,21 +45,17 @@ for spectrum in Spectra_Files:
 list = fits.open(TrainingDir+slash+'Superset_DR12Q.fits',memmap=True)#opening file
 print(len(log_wavst))
 supers=list[1].data # storing  BINTABLE extension data
-
 Full_Data = storing(PLATEIDs,supers)
-
-
-X,Y,Train_z, Train_mag,wavst = MLADataTest(Full_Data,BinInfos,Flux, log_wavst)
+X,Y,Train_z, Train_mag,wavst = MLAData(Full_Data,BinInfos,Flux, log_wavst)
 
 i=0
 while i <len(PLATEIDs):
     C_Plate = PLATEIDs[i]
     a1 = X[i] 
-    a2 = Y[i]
-
-    col1 = fits.Column(name='Bin_Flux', format='E', array=a1)
-    col2 = fits.Column(name='Class', format='E', array=a2)
+    a2 = np.array(Y[i])
+    col1 = fits.Column(name='Bin_Flux', format='PD()', array=np.array(a1,dtype=np.float))
+    col2 = fits.Column(name='Class', format='D', array=a2)
     cols = fits.ColDefs([col1, col2])
     tbhdu = fits.BinTableHDU.from_columns(cols)
-    tbhdu.writeto(TrainingDir+slash+"rebinned"+C_Plate+'.fits')
+    tbhdu.writeto(TrainingDir+slash+np.str(C_Plate)+'.fits')
     i=i+1
