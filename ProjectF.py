@@ -39,13 +39,15 @@ class FluxStore:
 
 
 
-def MLAData(Full_Data,BinInfos,Flux,log_wavs):
+def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
     
     
     All_Y=[]
     All_X = []
     All_redshifts=[]
     All_Mag=[]
+    All_AND=[]
+    All_Inv=[]
     wav_logs=[]
     plate_no = 0
     y=0
@@ -54,9 +56,15 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
         CurrentSup_data = Full_Data[plate_no]
         CurrentBin = BinInfos[plate_no]
         CurrentFlux = Flux[plate_no]
+        CurrentAndM= ANDMASK[plate_no]
+        CurrentInv = INV[plate_no]
         wav= log_wavs[plate_no]
         Plate_Y = []
         Plate_X = []
+        Plate_AND=[]
+        Plate_Inv=[]
+        Plate_redshifts=[]
+        Plate_Mag=[]
         
         #first object is zeroth element
         Sup_obj =0 
@@ -68,8 +76,9 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
             #going through each object in the bin
             BinObj_No = 0
             while BinObj_No<len(CurrentBin):
-                X=[]
                 BinObj = CurrentBin[BinObj_No]
+                ObjAndM= CurrentAndM[plate_no]
+                ObjInv = CurrentInv[plate_no]
                 
                 ##checking if the two match 
                 if BinObj['FIBERID'] == CurrentSup.FiberID:
@@ -86,33 +95,45 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs):
                                     x_flux =(CurrentFlux[BinObj_No])
                                     x_flux=x_flux[:4600]
                                     Plate_X.append(x_flux)
-                                    All_redshifts.append(CurrentSup.z)
-                                    All_Mag.append(CurrentSup.Mag)
-                                    wav_logs.append(wav)
+                                    Plate_redshifts.append(CurrentSup.z)
+                                    Plate_AND.append(ObjAndM)
+                                    Plate_Inv.append(ObjInv)
+                                    Plate_Mag.append(CurrentSup.Mag)
+                                    
                                 else:
                                     Plate_Y.append(30)
                                     x_flux =(CurrentFlux[BinObj_No])
                                     x_flux=x_flux[:4600]
                                     Plate_X.append(x_flux)
-                                    All_redshifts.append(CurrentSup.z)
-                                    All_Mag.append(CurrentSup.Mag)
-                                    wav_logs.append(wav)
+                                    Plate_redshifts.append(CurrentSup.z)
+                                    Plate_AND.append(ObjAndM)
+                                    Plate_Inv.append(ObjInv)
+                                    Plate_Mag.append(CurrentSup.Mag)
+                        
                                     
                             else: 
                                 Plate_Y.append(CurrentSup.Class_p)
                                 x_flux =(CurrentFlux[BinObj_No])
                                 x_flux=x_flux[:4600]
                                 Plate_X.append(x_flux)
-                                All_redshifts.append(CurrentSup.z)
-                                All_Mag.append(CurrentSup.Mag)
-                                wav_logs.append(wav)
+                                Plate_redshifts.append(CurrentSup.z)
+                                Plate_AND.append(ObjAndM)
+                                Plate_Inv.append(ObjInv)
+                                Plate_Mag.append(CurrentSup.Mag)
+            
                 BinObj_No=BinObj_No+1  
             Sup_obj=Sup_obj+1
         All_Y.append(Plate_Y)
         All_X.append(Plate_X)
         plate_no = plate_no+1
+        wav_logs.append(wav)
+        All_redshifts.append(Plate_redshifts)
+        All_Mag.append(Plate_Mag)
+        All_AND.append(Plate_AND)
+        All_Inv.append(Plate_Inv)
+    
 
-    return All_X,All_Y,All_redshifts,All_Mag,wav_logs
+    return All_X,All_Y,All_redshifts,All_Mag,All_AND,All_Inv,wav_logs
 
 
 def classification(objectclass, Trainingclass, prediction):
@@ -185,6 +206,8 @@ def MLADataBin(Full_Data,BinInfos,Flux,log_wavs, ANDMASK, INV, BIN_Size):
     All_redshifts=[]
     All_Mag=[]
     wav_logs=[]
+    All_AND=[]
+    All_Inv=[]
     plate_no = 0
     y=0
     while plate_no < len(Full_Data):
@@ -197,6 +220,8 @@ def MLADataBin(Full_Data,BinInfos,Flux,log_wavs, ANDMASK, INV, BIN_Size):
         wav= log_wavs[plate_no]
         Plate_Y = []
         Plate_X = []
+        Plate_AND=[]
+        Plate_Inv=[]
         
         #first object is zeroth element
         Sup_obj =0 
