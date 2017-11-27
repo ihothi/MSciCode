@@ -11,7 +11,7 @@ from ProjectF import MLADataTest,classification, Object,storing
 import random
 
 ## Loading in data
-PlateDir = os.path.normpath("D:\Data\Plate_Name.txt")
+PlateDir = os.path.normpath("D:\Data\Plate_Name1.txt")
 with open(PlateDir) as f:
     Spectra_Files = f.read().splitlines()
 print('Yes')  
@@ -46,7 +46,7 @@ list = fits.open(TrainingDir+slash+'Superset_DR12Q.fits',memmap=True)#opening fi
 print(len(log_wavst))
 supers=list[1].data # storing  BINTABLE extension data
 Full_Data = storing(PLATEIDs,supers)
-X,Y,Train_z, Train_mag,wavst = MLAData(Full_Data,BinInfos,Flux, log_wavst)
+X,Y,Train_z, Train_mag,wavst = MLAData(Full_Data,BinInfos,Flux, log_wavst,ANDMASK,INVAR)
 
 i=0
 d = open(TrainingDir+slash+"Full.txt", 'w')

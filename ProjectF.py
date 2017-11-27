@@ -28,6 +28,44 @@ class FluxStore:
     def __init__(self,PF):
         #leaving out redshift for now
         self.PlateFlux = PF
+        
+        
+        
+        
+def Rebin(Plate_Flux, Mask, Inv, Bin_Size ):
+    
+    rebin = []
+    rebin_weight=[]
+    obj=0
+    while obj < len(Plate_Flux):
+        current_flux = Plate_Flux[obj]
+        current_mask = Mask[obj]
+        current_inv = Inv[obj]
+        rebin_flux=[]
+        weight_=[]
+        pix=0
+        while pix < len(current_flux):
+            bin_no=0
+            x_flux=0
+            W=0
+            while bin_no<Bin_Size & (pix+bin_no) < len(current_flux):
+                pix = pix+bin_no
+                w_ = 0
+                m = current_mask[pix]
+                if m==0:
+                    w_=0
+                else:
+                    w_ = current_inv[pix]
+                x_flux = x_flux +(current_flux[pix]*w_)
+                W=W+w_
+                bin_no+bin_no+1
+            x_flux = x_flux/W
+            rebin_flux.append(x_flux)
+            weight_.append(W)
+        rebin.append(rebin_flux)
+        rebin_weight.append(weight_)
+        obj=obj+1
+    return rebin, rebin_weight
 
 
 
