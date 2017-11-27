@@ -32,35 +32,43 @@ class FluxStore:
         
         
         
-def Rebin(Plate_Flux, Mask, Inv, Bin_Size ):
+def Rebin(Plate_hdu, Bin_Size ):
     
     rebin = []
     rebin_weight=[]
     obj=0
-    while obj < len(Plate_Flux):
-        current_flux = Plate_Flux[obj]
-        current_mask = Mask[obj]
-        current_inv = Inv[obj]
+    while obj < len(Plate_hdu):
+        current_flux = Plate_hdu[obj][0]
+        current_mask = Plate_hdu[obj][2]
+        current_inv = Plate_hdu[obj][3]
         rebin_flux=[]
         weight_=[]
         pix=0
         while pix < len(current_flux):
+            print('yes')
             bin_no=0
             x_flux=0
             W=0
-            while bin_no<Bin_Size & (pix+bin_no) < len(current_flux):
+            while bin_no<Bin_Size:
                 pix = pix+bin_no
-                w_ = 0
-                m = current_mask[pix]
-                if m==0:
-                    w_=0
-                else:
-                    w_ = current_inv[pix]
-                x_flux = x_flux +(current_flux[pix]*w_)
-                W=W+w_
-                bin_no+bin_no+1
-            x_flux = x_flux/W
+                if pix< len(current_flux):
+                    w_ = 0
+                    m = current_mask[pix]
+                    if m==0:
+                        w_=0
+                    else:
+                        w_ = current_inv[pix]
+                    x_flux = x_flux +(current_flux[pix]*w_)
+                    W=W+w_
+                    bin_no=bin_no+1
+                else: 
+                    bin_no=bin_no+1
+            if W == 0:
+                x_flux=0
+            else: 
+                x_flux = x_flux/W
             rebin_flux.append(x_flux)
+
             weight_.append(W)
         rebin.append(rebin_flux)
         rebin_weight.append(weight_)
@@ -86,6 +94,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
     All_Mag=[]
     All_AND=[]
     All_Inv=[]
+    All_Name=[]
     wav_logs=[]
     plate_no = 0
     y=0
@@ -103,6 +112,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
         Plate_Inv=[]
         Plate_redshifts=[]
         Plate_Mag=[]
+        Plate_Name=[]
         
         #first object is zeroth element
         Sup_obj =0 
@@ -137,6 +147,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
                                     Plate_AND.append(ObjAndM)
                                     Plate_Inv.append(ObjInv)
                                     Plate_Mag.append(CurrentSup.Mag)
+                                    Plate_Name.append(CurrentSup.name)
                                     
                                 else:
                                     Plate_Y.append(30)
@@ -147,6 +158,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
                                     Plate_AND.append(ObjAndM)
                                     Plate_Inv.append(ObjInv)
                                     Plate_Mag.append(CurrentSup.Mag)
+                                    Plate_Name.append(CurrentSup.name)
                         
                                     
                             else: 
@@ -158,11 +170,13 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
                                 Plate_AND.append(ObjAndM)
                                 Plate_Inv.append(ObjInv)
                                 Plate_Mag.append(CurrentSup.Mag)
+                                Plate_Name.append(CurrentSup.name)
             
                 BinObj_No=BinObj_No+1  
             Sup_obj=Sup_obj+1
         All_Y.append(Plate_Y)
         All_X.append(Plate_X)
+        All_Name.append(Plate_Name)
         plate_no = plate_no+1
         wav_logs.append(wav)
         All_redshifts.append(Plate_redshifts)
@@ -171,7 +185,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
         All_Inv.append(Plate_Inv)
     
 
-    return All_X,All_Y,All_redshifts,All_Mag,All_AND,All_Inv,wav_logs
+    return All_X,All_Y,All_redshifts,All_Mag,All_AND,All_Inv,wav_logs,All_Name
 
 
 def classification(objectclass, Trainingclass, prediction):
