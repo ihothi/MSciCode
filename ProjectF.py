@@ -45,7 +45,6 @@ def Rebin(Plate_hdu, Bin_Size ):
         weight_=[]
         pix=0
         while pix < len(current_flux):
-            print('yes')
             bin_no=0
             x_flux=0
             W=0
