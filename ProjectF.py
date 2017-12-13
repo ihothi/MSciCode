@@ -385,7 +385,6 @@ def classification(objectclass, Trainingclass, prediction):
 
 
 def storing(PLATEIDs,s):
-    CurrentPlate = 0
     Full_Data=[]
     Plate_Count =0
     supers = s
@@ -403,7 +402,8 @@ def storing(PLATEIDs,s):
                          Current['MJD'], Current['FIBERID'],Current['PSFMAG'])
                 platename_data.append(Object_)
                 ## Once matched, no point
-                del supers[CurrentObject] 
+                ##As we have deleted an element 
+
             CurrentObject=CurrentObject+1    
         Plate_Count = Plate_Count + 1
         Full_Data.append(platename_data)
