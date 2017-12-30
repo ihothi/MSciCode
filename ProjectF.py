@@ -115,7 +115,7 @@ def StandardRebin(Plate_hdu,wavelength, Bin_Size ):
                     w_ = 0
                     m = current_mask[pix]
                     wav = wavelength[pix]
-                    if m==0:
+                    if m >0:
                         w_=0
                     else:
                         w_ = current_inv[pix]
@@ -138,6 +138,7 @@ def StandardRebin(Plate_hdu,wavelength, Bin_Size ):
         rebin.append(rebin_flux)
         rebin_weight.append(weight_)
         obj=obj+1
+        print("Percentage Completed: "+np.str(((obj*100))/len(Plate_hdu))+"%")
     return rebin, rebin_weight,rebinwav
 
 
@@ -267,6 +268,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
         Plate_redshifts=[]
         Plate_Mag=[]
         Plate_Name=[]
+        plate_match = False
         
         #first object is zeroth element
         Sup_obj =0 
@@ -279,12 +281,12 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
             BinObj_No = 0
             while BinObj_No<len(CurrentBin):
                 BinObj = CurrentBin[BinObj_No]
-                ObjAndM= CurrentAndM[plate_no]
-                ObjInv = CurrentInv[plate_no]
+                ObjAndM= CurrentAndM[BinObj_No]
+                ObjInv = CurrentInv[BinObj_No]
                 
                 ##checking if the two match 
                 if BinObj['FIBERID'] == CurrentSup.FiberID:
-                    y=y+1 
+                    plate_match = True 
                     if no_match:
                         if CurrentSup.Class_p == 0:
                             a=0
@@ -293,7 +295,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
                             no_match = False
                             if CurrentSup.Class_p == 3 or CurrentSup.Class_p==30:
                                 if CurrentSup.z < 2.1:
-                                    Plate_Y.append(3)
+                                    Plate_Y.append(1)
                                     x_flux =(CurrentFlux[BinObj_No])
                                     x_flux=x_flux[:4600]
                                     Plate_X.append(x_flux)
@@ -304,7 +306,7 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
                                     Plate_Name.append(CurrentSup.name)
                                     
                                 else:
-                                    Plate_Y.append(30)
+                                    Plate_Y.append(3)
                                     x_flux =(CurrentFlux[BinObj_No])
                                     x_flux=x_flux[:4600]
                                     Plate_X.append(x_flux)
@@ -316,27 +318,44 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
                         
                                     
                             else: 
-                                Plate_Y.append(CurrentSup.Class_p)
-                                x_flux =(CurrentFlux[BinObj_No])
-                                x_flux=x_flux[:4600]
-                                Plate_X.append(x_flux)
-                                Plate_redshifts.append(CurrentSup.z)
-                                Plate_AND.append(ObjAndM)
-                                Plate_Inv.append(ObjInv)
-                                Plate_Mag.append(CurrentSup.Mag)
-                                Plate_Name.append(CurrentSup.name)
+                                if CurrentSup.Class_p ==1:
+                                    
+                                    Plate_Y.append(0)
+                                    x_flux =(CurrentFlux[BinObj_No])
+                                    x_flux=x_flux[:4600]
+                                    Plate_X.append(x_flux)
+                                    Plate_redshifts.append(CurrentSup.z)
+                                    Plate_AND.append(ObjAndM)
+                                    Plate_Inv.append(ObjInv)
+                                    Plate_Mag.append(CurrentSup.Mag)
+                                    Plate_Name.append(CurrentSup.name)
+                                else:
+                                    Plate_Y.append(2)
+                                    x_flux =(CurrentFlux[BinObj_No])
+                                    x_flux=x_flux[:4600]
+                                    Plate_X.append(x_flux)
+                                    Plate_redshifts.append(CurrentSup.z)
+                                    Plate_AND.append(ObjAndM)
+                                    Plate_Inv.append(ObjInv)
+                                    Plate_Mag.append(CurrentSup.Mag)
+                                    Plate_Name.append(CurrentSup.name)
+                                    
             
                 BinObj_No=BinObj_No+1  
             Sup_obj=Sup_obj+1
-        All_Y.append(Plate_Y)
-        All_X.append(Plate_X)
-        All_Name.append(Plate_Name)
-        plate_no = plate_no+1
-        wav_logs.append(wav)
-        All_redshifts.append(Plate_redshifts)
-        All_Mag.append(Plate_Mag)
-        All_AND.append(Plate_AND)
-        All_Inv.append(Plate_Inv)
+        if plate_match:
+            All_Y.append(Plate_Y)
+            All_X.append(Plate_X)
+            All_Name.append(Plate_Name)
+            plate_no = plate_no+1
+            print("MLA Function Completion: "+np.str((plate_no*100)/len(Full_Data))+"%")
+            wav_logs.append(wav)
+            All_redshifts.append(Plate_redshifts)
+            All_Mag.append(Plate_Mag)
+            All_AND.append(Plate_AND)
+            All_Inv.append(Plate_Inv)
+        else:
+            plate_no=plate_no+1
     
 
     return All_X,All_Y,All_redshifts,All_Mag,All_AND,All_Inv,wav_logs,All_Name
@@ -362,16 +381,16 @@ def classification(objectclass, Trainingclass, prediction):
         currentobject = Trainingclass[i]
         currentpred = prediction[i]
         if objectclass==currentobject:
-            if currentpred==1: 
+            if currentpred==0: 
                 star=star+1
                 starloc.append(i)
-            elif currentpred==3: 
+            elif currentpred==1: 
                 qso=qso+1
                 qsoloc.append(i)
-            elif currentpred==4: 
+            elif currentpred==2: 
                 gal=gal+1
                 galloc.append(i)
-            elif currentpred==30: 
+            elif currentpred==3: 
                 bal=bal+1
                 balloc.append(i)
         
@@ -404,8 +423,9 @@ def storing(PLATEIDs,s):
                 ## Once matched, no point
                 ##As we have deleted an element 
 
-            CurrentObject=CurrentObject+1    
+            CurrentObject=CurrentObject+1 
         Plate_Count = Plate_Count + 1
+        print("Plate Storage Completed: "+  np.str((Plate_Count*100)/len(PLATEIDs))+"%" )
         Full_Data.append(platename_data)
     return Full_Data
 
