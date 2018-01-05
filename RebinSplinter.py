@@ -72,7 +72,6 @@ def StandardRebin(plateX, wavelength,ANDMASK,INVAR ,Bin_Size ):
         rebin.append(rebin_flux)
         rebin_weight.append(weight_)
         obj=obj+1
-        print("Rebin Progress: "+ np.str((obj*100)/len(plateX)))
     return rebin, rebin_weight,rebinwav
 
 
@@ -104,7 +103,7 @@ with open(file) as f:
     
 i=0
 Spectra_Files=[]
-while i< 250:
+while i< 350:
     a = randint(0, 2300)
     Spectra_Files.append(Files[a])
     i=i+1
@@ -122,7 +121,6 @@ for f in Spectra_Files:
     for l in file_list:
         if 'spPlate' in l and ".fits"in l: 
             c=Platedir+slash+f+slash+l
-            print(c)
             plate_ = fits.open(c,memmap=True)
             Bin_info_ = plate_[5].data
             Flux_ = plate_[0].data
@@ -271,9 +269,9 @@ while plate_no<len(XTest):
 
 p = 0
 
-while p < len(X_plate):
-    CurrentplateX = X_plate[p]
-    CurrentplateY=Y[p]
+while p < len(XTest_plate):
+    CurrentplateX = XTest_plate[p]
+    CurrentplateY=YTest[p]
     n=0
     while n<len(CurrentplateX):
         X_Test.append(CurrentplateX[n][:800])
@@ -295,19 +293,19 @@ while p < len(X_plate):
 
     
 hiddenlayer_format = (13)
-backprop_method = 'lbfgs'
+backprop_method = 'adam'
 lr=0.00001
-act =  'logistic'#'tanh'
-mlp = MLPClassifier(hidden_layer_sizes=hiddenlayer_format,max_iter=500, solver = backprop_method,learning_rate_init=lr,activation=act) ##Think About
+act = 'tanh' #'logistic'
+mlp = MLPClassifier(hidden_layer_sizes=hiddenlayer_format,max_iter=500, solver = backprop_method,learning_rate_init=lr,activation=act,verbose=True,) ##Think About
 
   
 X_Test = scaler.transform(X_Test)  
 mlp.fit(X_Full,Y_Full)
 predictions = mlp.predict(np.array(X_Test))
-star,star_starloc,star_lowzloc,star_galloc,star_highzloc = classification(1,Y_Test,predictions) 
-lowz,lowz_starloc,lowz_loc,lowz_galloc,lowz_highzloc = classification(3,Y_Test,predictions)
-gal,gal_starloc,gal_lowzloc,gal_galloc,gal_highzloc = classification(4,Y_Test,predictions)
-highz,highz_starloc,highz_lowzloc,highz_galloc,highz_highzloc = classification(30,Y_Test,predictions)
+star,star_starloc,star_lowzloc,star_galloc,star_highzloc = classification(0,Y_Test,predictions) 
+lowz,lowz_starloc,lowz_loc,lowz_galloc,lowz_highzloc = classification(1,Y_Test,predictions)
+gal,gal_starloc,gal_lowzloc,gal_galloc,gal_highzloc = classification(2,Y_Test,predictions)
+highz,highz_starloc,highz_lowzloc,highz_galloc,highz_highzloc = classification(3,Y_Test,predictions)
 File_Name = np.str(Bin_Size)#input("Please Enter File name: ")
 d = open(File_Name+".txt", 'w')
 #t1=["Files used",np.str(Spectra_Files), "\n"]

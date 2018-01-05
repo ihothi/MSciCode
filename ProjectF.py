@@ -348,7 +348,6 @@ def MLAData(Full_Data,BinInfos,Flux,log_wavs,ANDMASK, INV):
             All_X.append(Plate_X)
             All_Name.append(Plate_Name)
             plate_no = plate_no+1
-            print("MLA Function Completion: "+np.str((plate_no*100)/len(Full_Data))+"%")
             wav_logs.append(wav)
             All_redshifts.append(Plate_redshifts)
             All_Mag.append(Plate_Mag)

@@ -72,7 +72,6 @@ def StandardRebin(plateX, wavelength,ANDMASK,INVAR ,Bin_Size ):
         rebin.append(rebin_flux)
         rebin_weight.append(weight_)
         obj=obj+1
-        print("Rebin Progress: "+ np.str((obj*100)/len(plateX)))
     return rebin, rebin_weight,rebinwav
 
 
@@ -104,7 +103,7 @@ with open(file) as f:
     
 i=0
 Spectra_Files=[]
-while i< 500:
+while i< 300:
     a = randint(0, 2300)
     Spectra_Files.append(Files[a])
     i=i+1
@@ -122,7 +121,6 @@ for f in Spectra_Files:
     for l in file_list:
         if 'spPlate' in l and ".fits"in l: 
             c=Platedir+slash+f+slash+l
-            print(c)
             plate_ = fits.open(c,memmap=True)
             Bin_info_ = plate_[5].data
             Flux_ = plate_[0].data
@@ -174,6 +172,7 @@ X_Full = []
 Y_Full = []
 p = 0
 
+print("Full X and Y")
 while p < len(X_plate):
     CurrentplateX = X_plate[p]
     CurrentplateY=Y[p]
@@ -216,7 +215,7 @@ Testlog_wavst=[]
 TestORMASK=[]
 TestANDMASK=[]
 TestINVAR=[]
-print("Opening Files")
+print("Opening Test Files")
 for f in Test_Files:
     file_list = os.listdir(Platedir+slash+f)
     for l in file_list:
@@ -256,7 +255,7 @@ while plate_no < len(wavst):
     
 plate_no = 0
 XTest_plate=[]
-print('Re-binning')
+print('Re-binning Test')
 while plate_no<len(XTest):
     plateX = XTest[plate_no]
     plateMask = TestAnd[plate_no]
@@ -268,7 +267,7 @@ while plate_no<len(XTest):
     
 
 p = 0
-
+print("Full Test X and Y")
 while p < len(XTest_plate):
     CurrentplateX = XTest_plate[p]
     CurrentplateY=YTest[p]
@@ -291,58 +290,36 @@ while p < len(XTest_plate):
 
 
 
-    
+print("Fitting MLA")
 hiddenlayer_format = (13)
 backprop_method = 'adam'
 lr=0.0001
 act =  'logistic'#'tanh'
-mlp = MLPClassifier(hidden_layer_sizes=hiddenlayer_format,max_iter=500, solver = backprop_method,learning_rate_init=lr,activation=act) ##Think About
-classes=[1,3,4,30]
+depth = 40
 
-object_total = 0
-part_start = 0
-increment = 1000
-part_end = increment
-
-while part_end<len(X_Full):
-    try:
-        X_current = X_Full[part_start:part_end]
-        Y_current = Y_Full[part_start:part_end]
-        mlp.partial_fit(X_current,Y_current,classes)
-    except ValueError as V:
-        del X_Full[part_start:part_end]
-        del Y_Full[part_start:part_end]
-        print(V)
-        part_start=part_end
-        print("Fitting: "+np.str((part_end/len(X_Full))*100))
-        part_end+=increment
-        object_total=part_end
-        
-    else:
-        part_start=part_end
-        print("Fitting: "+np.str((part_end/len(X_Full))*100))
-        part_end+=increment
-        object_total=part_end #+15 just in case of rounding
+rf = RandomForestClassifier(max_depth=depth, random_state=0)
+rf.fit(X_Full,Y_Full)
   
-
-predictions = mlp.predict(np.array(X_Test))
-star,star_starloc,star_lowzloc,star_galloc,star_highzloc = classification(1,Y_Test,predictions) 
-lowz,lowz_starloc,lowz_loc,lowz_galloc,lowz_highzloc = classification(3,Y_Test,predictions)
-gal,gal_starloc,gal_lowzloc,gal_galloc,gal_highzloc = classification(4,Y_Test,predictions)
-highz,highz_starloc,highz_lowzloc,highz_galloc,highz_highzloc = classification(30,Y_Test,predictions)
+print("Predicting")
+predictions = rf.predict(np.array(X_Test))
+print(classification_report(Y_Test,predictions))
+star,star_starloc,star_lowzloc,star_galloc,star_highzloc = classification(0,Y_Test,predictions) 
+lowz,lowz_starloc,lowz_loc,lowz_galloc,lowz_highzloc = classification(1,Y_Test,predictions)
+gal,gal_starloc,gal_lowzloc,gal_galloc,gal_highzloc = classification(2,Y_Test,predictions)
+highz,highz_starloc,highz_lowzloc,highz_galloc,highz_highzloc = classification(3,Y_Test,predictions)
 File_Name = np.str(Bin_Size)#input("Please Enter File name: ")
-d = open(File_Name+".txt", 'w')
+d = open(File_Name+"RF.txt", 'w')
 #t1=["Files used",np.str(Spectra_Files), "\n"]
 sp= "\n"
 t2 = ["Bin Size = ",np.str(Bin_Size), "\n"]
-t3 = ["Number of training objects = ",np.str(object_total), "\n"]
+t3 = ["Number of training objects = ",np.str(len(X_Full)), "\n"]
 t4 = ["Number of testing objects = ",np.str(len(X_Test)), "\n"]
-n1 = ["Structure of neural network: ", np.str(hiddenlayer_format),"\n"]
-n2  = ["Backpropagation method used: ",np.str(backprop_method), "\n"]
+n1 = ["Random Forest Depth: ", np.str(depth),"\n"]
+n2  = ["Best split function: ",np.str("gini"), "\n"]
 n3  = ["Learning rate: ",np.str(lr), "\n"]
 n4  = ["Activation Function: ",np.str(act), "\n"]
 r1 = ["Results of Neural Network: ", "\n","\n"]
-r2=["        ","       Star    Quasar  Galaxy  BAL ","\n",]
+r2=["        ","       Star    z<2.1  Galaxy  z>2.1 ","\n",]
 r3="Star           ",np.str(np.round(star[0]*100,2)),"%  ", np.str(np.round(star[1]*100,2)),"%  ",np.str(np.round(star[2]*100,2)),"%  ",np.str(np.round(star[3]*100,2)),"%","\n"
 r4="Quasar z<2.1   ",np.str(np.round( lowz[0]*100,2)),"%  ", np.str(np.round( lowz[1]*100,2)),"%  ",np.str(np.round( lowz[2]*100,2)),"%  ",np.str(np.round( lowz[3]*100,2)),"%","\n"
 r5="Galaxy         ",np.str(np.round( gal[0]*100,2)),"%  ", np.str(np.round( gal[1]*100,2)),"%  ",np.str(np.round( gal[2]*100,2)),"%  ",np.str(np.round( gal[3]*100,2)),"%","\n"

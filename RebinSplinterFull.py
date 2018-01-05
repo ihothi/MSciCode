@@ -72,7 +72,6 @@ def StandardRebin(plateX, wavelength,ANDMASK,INVAR ,Bin_Size ):
         rebin.append(rebin_flux)
         rebin_weight.append(weight_)
         obj=obj+1
-        print("Rebin Progress: "+ np.str((obj*100)/len(plateX)))
     return rebin, rebin_weight,rebinwav
 
 
@@ -104,7 +103,7 @@ with open(file) as f:
     
 i=0
 Spectra_Files=[]
-while i< 250:
+while i< 1000:
     a = randint(0, 2300)
     Spectra_Files.append(Files[a])
     i=i+1
@@ -144,7 +143,7 @@ X,Y,Train_z, Train_mag,And, In, wavst, ID = MLAData(Full_Data,BinInfos,Flux, log
 wav_ratio = 10**0.0001
 plate_no = 0
 all_wav=[]
-
+print("Finding Wavelength")
 while plate_no < len(wavst): 
     append_count=0
     cent_wav = 10**wavst[plate_no]
@@ -173,7 +172,7 @@ while plate_no<len(X):
 X_Full = []
 Y_Full = []
 p = 0
-
+print("Creating Single Array For X and Y")
 while p < len(X_plate):
     CurrentplateX = X_plate[p]
     CurrentplateY=Y[p]
@@ -216,13 +215,12 @@ Testlog_wavst=[]
 TestORMASK=[]
 TestANDMASK=[]
 TestINVAR=[]
-print("Opening Files")
+print("Opening Test Files")
 for f in Test_Files:
     file_list = os.listdir(Platedir+slash+f)
     for l in file_list:
         if 'spPlate' in l and ".fits"in l: 
             c=Platedir+slash+f+slash+l
-            print(c)
             plate_ = fits.open(c,memmap=True)
             Bin_info_ = plate_[5].data
             Flux_ = plate_[0].data
@@ -256,7 +254,7 @@ while plate_no < len(wavst):
     
 plate_no = 0
 XTest_plate=[]
-print('Re-binning')
+print('Re-binning Test')
 while plate_no<len(XTest):
     plateX = XTest[plate_no]
     plateMask = TestAnd[plate_no]
@@ -268,7 +266,7 @@ while plate_no<len(XTest):
     
 
 p = 0
-
+print("Storing Full Test X and Y")
 while p < len(XTest_plate):
     CurrentplateX = XTest_plate[p]
     CurrentplateY=YTest[p]
@@ -291,8 +289,8 @@ while p < len(XTest_plate):
 
 
 
-    
-hiddenlayer_format = (13)
+print("Fitting MLA")    
+hiddenlayer_format = (13,13)
 backprop_method = 'adam'
 lr=0.0001
 act =  'logistic'#'tanh'
@@ -304,6 +302,8 @@ part_start = 0
 increment = 1000
 part_end = increment
 
+print("Fitting")
+
 while part_end<len(X_Full):
     try:
         X_current = X_Full[part_start:part_end]
@@ -313,24 +313,18 @@ while part_end<len(X_Full):
         del X_Full[part_start:part_end]
         del Y_Full[part_start:part_end]
         print(V)
-        part_start=part_end
-        print("Fitting: "+np.str((part_end/len(X_Full))*100))
-        part_end+=increment
-        object_total=part_end
-        
     else:
         part_start=part_end
-        print("Fitting: "+np.str((part_end/len(X_Full))*100))
         part_end+=increment
         object_total=part_end #+15 just in case of rounding
   
-
-predictions = mlp.predict(np.array(X_Test))
-star,star_starloc,star_lowzloc,star_galloc,star_highzloc = classification(1,Y_Test,predictions) 
-lowz,lowz_starloc,lowz_loc,lowz_galloc,lowz_highzloc = classification(3,Y_Test,predictions)
-gal,gal_starloc,gal_lowzloc,gal_galloc,gal_highzloc = classification(4,Y_Test,predictions)
-highz,highz_starloc,highz_lowzloc,highz_galloc,highz_highzloc = classification(30,Y_Test,predictions)
-File_Name = np.str(Bin_Size)#input("Please Enter File name: ")
+print("Predicting")
+predictions = mlp.predict(X_Test)
+star,star_starloc,star_lowzloc,star_galloc,star_highzloc = classification(0,Y_Test,predictions) 
+lowz,lowz_starloc,lowz_loc,lowz_galloc,lowz_highzloc = classification(1,Y_Test,predictions)
+gal,gal_starloc,gal_lowzloc,gal_galloc,gal_highzloc = classification(2,Y_Test,predictions)
+highz,highz_starloc,highz_lowzloc,highz_galloc,highz_highzloc = classification(3,Y_Test,predictions)
+File_Name = np.str(Bin_Size)+"_1000plates"#input("Please Enter File name: ")
 d = open(File_Name+".txt", 'w')
 #t1=["Files used",np.str(Spectra_Files), "\n"]
 sp= "\n"
