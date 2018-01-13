@@ -2,7 +2,7 @@
 IPython code for Classification
 
 Advice for using:
-
+ #### Project_Functions.py contains all the functions needed
 Ignore any .ipynb files, as they were used for testing sections of the script on a smaller dataset.
 
 To run the neural network on the (binned and stored) data set, use:  NeuralNetwork_Bin.py.   <---- In Neural_Networks
