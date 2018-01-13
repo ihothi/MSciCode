@@ -2,6 +2,8 @@ import numpy as np
 from astropy.io import fits
 import os
 from ProjectF import MLAData,classification, Object,storing
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 
@@ -26,8 +28,8 @@ with open(file) as f:
 
 print(np.str(len(Files)))
 Spectra_Files=[]
-i=1601
-while i< 2442:
+i=0
+while i< 2400:
     Spectra_Files.append(Files[i])
     i=i+1
 PLATEIDs = []
@@ -45,9 +47,17 @@ for f in Spectra_Files:
         if 'spPlate' in l and ".fits"in l: 
             c=Platedir+slash+f+slash+l
             plate_ = fits.open(c,memmap=True)
+            Bin_info_ = plate_[5].data
+            Flux_ = plate_[0].data
             primhdu_ = plate_[0]
             PLATEIDs.append(primhdu_.header['PLATEID'])
+            ORMASK.append( plate_[3].data)
             ANDMASK.append( plate_[2].data)
+            INVAR.append( plate_[1].data)
+            log_wavst.append(primhdu_.header['COEFF0'])
+            MJDs.append(primhdu_.header['MJD'])
+            BinInfos.append(Bin_info_)
+            Flux.append(Flux_)
 
         
 list = fits.open('Superset_DR12Q.fits',memmap=True)#opening file
@@ -76,6 +86,13 @@ while i <len(MatchedPlates):
     RejNoPlate.append(RejNo) 
     i=i+1
         
+    
+    
+plt.hist(RejNoPlate)
+plt.title('Rejection Plots')
+plt.xlabel('Number of rejected pixels')
+plt.ylabel('No. of Objects')
+plt.savefig("Pixel_Rejection.png")
                 
     
     
