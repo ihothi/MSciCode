@@ -13,11 +13,12 @@ import time
 
 
 TrainP = [1,3,10,30,100,300]
+TestP = [1,3,10,30,100,300]
 
 
 
 for numtrain in TrainP:
-    for numtest in TrainP:
+    for numtest in TestP:
         Bin_Size = 10#np.int(input("Please Enter bin size: "))
         slash =  os.path.normpath("/")
         Platedir = os.path.normpath(slash+"share"+slash+"splinter"+slash+"hothi"+slash+"boss_data_rebinned_x10"+slash)
@@ -150,7 +151,7 @@ for numtrain in TrainP:
         starttrain = time.time()
         mlp.fit(plate_x, plate_y)
         endtrain = time.time()
-        print("for "+ np.str(numtrain)+" plates, time taken to train: "+ np.str(starttrain-endtrain)+" seconds" )
+        print("for "+ np.str(numtrain)+" plates, time taken to train: "+ np.str(endtrain-starttrain)+" seconds" )
         #while part_end<len(X_Full):
         # try:
             #    X_current = X_Full[part_start:part_end]
@@ -166,13 +167,15 @@ for numtrain in TrainP:
 #        object_total=part_end #+15 just in case of rounding
   
         print("Predicting")
-        teststart = time.time()
+        
         plate_xt = scaler.transform(plate_xt) 
-        testend = time.time()
+       
         
-        print("for "+ np.str(numtest)+" plates, time taken to train: "+ np.str(teststart-testend)+" seconds" )
         
+        teststart = time.time()
         predictions = mlp.predict(plate_xt)
+        testend = time.time()
+        print("for "+ np.str(numtest)+" plates, time taken to test: "+ np.str(testend-teststart)+" seconds" )
         star,star_starloc,star_lowzloc,star_galloc,star_highzloc = classification(0,plate_yt,predictions) 
         lowz,lowz_starloc,lowz_loc,lowz_galloc,lowz_highzloc = classification(1,plate_yt,predictions)
         gal,gal_starloc,gal_lowzloc,gal_galloc,gal_highzloc = classification(2,plate_yt,predictions)
