@@ -46,6 +46,7 @@ while i<No_TrainPlates :
 wav_log=[]
 Full_table = []
 PLATEIDs = []
+minimum =0
 print("Opening Files")
 for f in Spectra_Files:
     file_list = os.listdir(Platedir+slash+f)
@@ -57,6 +58,7 @@ for f in Spectra_Files:
         Full_table.append(hdu)
         PLATEIDs.append(primhdu_.header['Plate'])
         wav_log.append(primhdu_.header['LogWav'])
+        minimum = primhdu_.header['Min']
         
 plate_r  = []
 plate_n  = []
@@ -75,7 +77,7 @@ while i < len(PLATEIDs):
         Currentplate_n = currentobj[5]
         plate_r.append(Currentplate_z)
         plate_n.append(Currentplate_n)
-        plate_x.append(Currentplate_x[:800])
+        plate_x.append(Currentplate_x[:Min])
         plate_y.append(Currentplate_y)
         obj = obj +1
     i = i+1
