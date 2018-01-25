@@ -7,13 +7,13 @@ def StandardRebin(plateX, wavelength,ANDMASK,INVAR ,Bin_Size ):
     
     rebin = []
     rebin_weight=[]
+    minimum=100000000000
     bin_wav = Bin_Size*0.829026074968624
     wavelength=wavelength[:4600]
     rebinwav=[]
  
     obj=0
     while obj < len(plateX):
-        last_wav=0
         current_flux = plateX[obj]
         current_mask = ANDMASK[obj]
         current_inv = INVAR[obj]
@@ -64,8 +64,10 @@ def StandardRebin(plateX, wavelength,ANDMASK,INVAR ,Bin_Size ):
         rebinwav.append(cwav)
         rebin.append(rebin_flux)
         rebin_weight.append(weight_)
+        if len(rebin_flux)<minimum:
+            minimum=len(rebin_flux)
         obj=obj+1
-    return rebin, rebin_weight,rebinwav
+    return rebin, rebin_weight,rebinwav,minimum
 
 
 
@@ -145,13 +147,14 @@ plate_no = 0
 Xbin_plate=[]
 w_plate=[]
 l_plate=[]
+minimum =0
 print('Re-binning Test')
 while plate_no<len(X):
     plateX = X[plate_no]
     plateMask = And[plate_no]
     plateInv = In[plate_no]
     wave = all_Testwav[plate_no]
-    r,w, r_lambda = StandardRebin(plateX,wave,plateMask,plateInv ,Bin_Size )
+    r,w, r_lambda,minimum = StandardRebin(plateX,wave,plateMask,plateInv ,Bin_Size )
     Xbin_plate.append(r)
     w_plate.append(w)
     l_plate.append(r_lambda)
@@ -187,6 +190,7 @@ while i <len(MatchedPlates):
         prihdr['Plate'] = C_Plate
         prihdr['LogWav'] = a7
         prihdr['MJDs'] = a8
+        prihdr['Min'] = minimum
         prihdu = fits.PrimaryHDU(header=prihdr)
         file_dir = Bin_platedir+slash+np.str(C_Plate)+slash
         try:   
