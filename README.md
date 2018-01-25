@@ -11,4 +11,6 @@ To run this in splinter, the shell script is: NeuralNetworkBin.sh
 To test the performance on various amounts of testing and training plates use: PerformanceTest.py <---- In Neural_Networks
 To run this in splinter, the shell script is: Performance.sh
 
-Change TrainP = [1,3,10,30,100,300] into however many plates you want. Note: The plate numbers used are the same for testing, to vary testing plates differently create an array, sa, TestP and replace TrainP in line 20 with this.
+Change TrainP = [1,3,10,30,100,300] into however many plates you want. Note: The plate numbers used are the same for testing, to vary testing plates differently change TestP.
+
+For 
