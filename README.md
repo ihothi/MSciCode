@@ -12,9 +12,13 @@ _For SDSS data only, Download the following_
 ###### optNN.pkl and scaler.save are the optimised neural network (and its feature scaling) used in this project
 
 note:
+
 Please enter the pixel rejection threshold and Bin size (for spectral binning)
+
 Platedir - is the location of the plate folders; this code assumes the superset file is in the working directory
+
 Bin_platedir - is where you will like to store the new FITS files
+
 
 _For SDSS data and DESI, Download the following_:
 
