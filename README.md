@@ -23,5 +23,6 @@ Bin_platedir - is where you will like to store the new FITS files
 _For SDSS data and DESI, Download the following_:
 
 * Storing.py  : This matches the Superset objects to the plate data'.
+* DESIDataStore.py : Matches truth file objects to HEALPix objects -> Requires package from desihub/desitarget
 * DESI_NeuralNetwork.py: Trains a neural network and prints out the classification. This can easily be changed to a text file by saving 
                          the printed variables in a text file. 
