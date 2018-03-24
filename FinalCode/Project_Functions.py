@@ -335,5 +335,274 @@ def storing(PLATEIDs,supers):
     return Full_Data
 
 
+def DESI(plate_wavB,plate_wavR,plate_wavZ,plate_fluxB,plate_fluxR,plate_fluxZ,plate_andB,plate_andR,plate_andZ,plate_inB,plate_inR,plate_inZ,plate_class,Bin_Size,objs,rejections):
+    DesiX_Full=[]
+    DesiY_Full=[]
+    wavbin_fill = []
+    minim = 1000000000
+    n=0
+    while n<objs:
+        start_binB =[]
+        start_binR =[]
+        start_binZ =[]
+        obj_full =[]
+        c_wavB=plate_wavB
+        c_wavR=plate_wavR
+        c_wavZ=plate_wavZ
+        c_fluxB = plate_fluxB[n][:2380]
+        c_fluxR = plate_fluxR[n][:2116]
+        c_fluxZ = plate_fluxZ[n]
+        c_andB = plate_andB[n][:2380]
+        c_andR = plate_andR[n][:2116]
+        c_andZ = plate_andZ[n]
+        c_inB = plate_inB[n][:2380]
+        c_inR = plate_inR[n][:2116]
+        c_inZ = plate_inZ[n]
+        c_class = plate_class[n]
+        
+        bin_start =3600
+        bin_wav = Bin_Size*0.00023
+        Crebin_fluxB = []
+        Crebin_fluxR = []
+        Crebin_fluxZ = []
+        Crebin_inB = []
+        Crebin_inR = []
+        Crebin_inZ = []
+        obj_full=[]
+        wavbin = []
+        j=0
+        rej_no=0
+        while j< len(c_wavB):
+            
+            bin_end =  bin_start +(bin_start*bin_wav)
+            x_flux=0
+            W=0
+            wav=c_wavB[j]
+            if wav <bin_end:    
+                start_binB.append(bin_start)
+                while wav <bin_end and j< len(c_wavB):
+                    w_ = 0
+                    m = c_andB[j]
+                    if m>0:
+                        w_=0
+                    else:
+                        w_ = c_inB[j]
+                        x_flux = x_flux +(c_fluxB[j]*w_)
+                        W=W+w_
+                    
+                    j+=1
+                    if j< len(c_wavB):    
+                        wav=c_wavB[j]
+                bin_start = bin_end
+                
+                if W == 0:
+                    x_flux=0
+                else: 
+                    x_flux = x_flux/W
+                Crebin_fluxB.append(x_flux)
+                Crebin_inB.append(W)
+                bin_start =  bin_end
+                wav=bin_end
+                    
+                        
+            else:
+                bin_start = bin_end        
+        j=0
+        bin_start=3600
+        while j< len(c_wavR):
+            bin_end =  bin_start +(bin_start*bin_wav)
+            x_flux=0
+            W=0
+            wav=c_wavR[j]
+            if wav <bin_end:    
+                start_binR.append(bin_start)
+                while wav <bin_end and j< len(c_wavR):
+                    w_ = 0
+                    m = c_andR[j]
+                    if m>0:
+                        w_=0
+                    else:
+                        w_ = c_inR[j]
+                        x_flux = x_flux +(c_fluxR[j]*w_)
+                        W=W+w_
+                    
+                    j+=1
+                    if j< len(c_wavR):    
+                        wav=c_wavR[j]
+                bin_start = bin_end
+                
+                if W == 0:
+                    x_flux=0
+                else: 
+                    x_flux = x_flux/W
+                Crebin_fluxR.append(x_flux)
+                Crebin_inR.append(W)
+                bin_start =  bin_end
+                wav=bin_end
+                    
+                        
+            else:
+                bin_start = bin_end
+                    
+                
+        
+        j=0
+        bin_start=3600
+        
+        while j< len(c_wavZ):
+            
+            bin_end =  bin_start +(bin_start*bin_wav)
+            x_flux=0
+            W=0
+            wav=c_wavZ[j]
+            if wav <bin_end:    
+                start_binZ.append(bin_start)
+                while wav <bin_end and j< len(c_wavZ):
+                    w_ = 0
+                    m = c_andZ[j]
+                    if m>0:
+                        w_=0
+                   
+                    
+                    
+                    
+                    
+                    else:
+                        w_ = c_inZ[j]
+                        x_flux = x_flux +(c_fluxZ[j]*w_)
+                        W=W+w_
+                    
+                    j+=1
+                    if j< len(c_wavZ):    
+                        wav=c_wavZ[j]
+                bin_start = bin_end
+                
+                if W == 0:
+                    x_flux=0
+                else: 
+                    x_flux = x_flux/W
+                Crebin_fluxZ.append(x_flux)
+                Crebin_inZ.append(W)
+                bin_start =  bin_end
+                wav=bin_end
+                    
+                        
+            else:
+                bin_start = bin_end
+
+                    
+                
+
+        
+       
+        
+        ################# Do the comparison here #############
+        ##Make new arrays. if they do not have the same bin start append to new array
+        ## If they do add their  (x_flux1*W1 + x_flux2*W2)/(W1+W2)
+        ######################################################
+        
+        b=0
+        rst = 0
+        while b<len(start_binB):
+            currentstartb = start_binB[b]
+            r = 0
+            br_no =True
+            b_flux = 0
+            first=True
+            while r< len(start_binR):
+                currentstartr=start_binR[r]
+                wbin=0
+                if first:
+                    rst =  r
+                    first = False
+                if currentstartb==currentstartr and br_no:
+                    br_no= False
+                    b_flux = ((Crebin_inR[r]*Crebin_fluxR[r])+(Crebin_inB[b]*Crebin_fluxB[b]))
+             
+                    
+                    wbin = Crebin_inR[r]+Crebin_inB[b]
+    
+                    if wbin==0:
+                        b_flux=0
+                    else:
+                        b_flux = b_flux/wbin
+                        
+                
+                r+=1
+                rst = r
+            if br_no:
+    
+                obj_full.append(Crebin_fluxB[b])
+                wavbin.append(currentstartb+(0.5*currentstartb*bin_wav))
+            else:
+        
+                obj_full.append(b_flux)
+                wavbin.append(currentstartb+(0.5*currentstartb*bin_wav))
+            b+=1
+            
+        r=0
+        z_start = 0
+        start_binR = start_binR[(rst+1):]
+        Crebin_inR=Crebin_inR[(rst+1):]
+        Crebin_fluxR=Crebin_fluxR[(rst+1):]
+        while r<len(start_binR):
+            currentstartr = start_binR[r]
+            z=0
+            rz_no =True
+            b_flux = 0
+            while z< len(start_binZ):
+                currentstartz=start_binZ[z]
+                if currentstartz==currentstartr and rz_no:
+                    if r == (len(start_binR) -1):
+                        z_start = z   
+                    rz_no= False
+                    b_flux = ((Crebin_inR[r]*Crebin_fluxR[r])+(Crebin_inZ[z]*Crebin_fluxZ[z]))
+                    wbin =(Crebin_inZ[z]+Crebin_inR[r])
+                    if wbin==0:
+                        b_flux=0
+                    else:
+                        b_flux = b_flux/wbin
+                    
+                z+=1
+            if rz_no:
+                obj_full.append(Crebin_fluxR[r])
+                wavbin.append(currentstartr+(0.5*currentstartr*bin_wav))
+            else:
+                obj_full.append(b_flux)
+                wavbin.append(currentstartr+(0.5*currentstartr*bin_wav))
+            r+=1
+        
+        z_add = Crebin_fluxZ[(z_start+1):]
+        z_wavp = start_binZ[(z_start+1):]
+        for zf in z_add:
+            obj_full.append(zf)
+        for wavz in z_wavp:
+            wavbin.append(wavz+(0.5*wavz*bin_wav))
+            
+        if rej_no < rejections:
+            DesiX_Full.append(obj_full)
+            DesiY_Full.append(c_class)
+            wavbin_fill.append(wavbin)
+            if len(obj_full) < minim:
+                minim = len(obj_full)
+        n+=1
+
+    return DesiX_Full, DesiY_Full,wavbin_fill,minim
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
